@@ -1,0 +1,95 @@
+<html>
+  <head>
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" ></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+    <div class="container">
+      <h1>ObjectId Decoder</h1>
+      <p>
+      <textarea id="message" class="span12"></textarea>
+      </p>
+      <p>
+      <div id="result"></div>
+      </p>
+    </div>
+
+    <script>
+      var unsuccessful = [false, []];
+
+      function decode(str) {
+        var result = [];
+        var oids = str.split(/[^a-fA-F0-9]/);
+        for (oidIdx in oids) {
+          // First 8 characters (4 bytes) are the time
+          var oid = oids[oidIdx];
+          if (oid.length == 24) {
+            var timeHex = '0x' + oid.slice(0, 8)
+            var time = parseInt(timeHex, 16);
+            var date = new Date(time * 1000);
+            var dateStr = date.toGMTString();
+            result.push('<tr><td>' + oid + '</td><td>' + dateStr + '</td></tr>');
+          }
+        }
+        return [true, result];
+      }
+
+      function encode(str) {
+        if (!str) {
+          return [true, []];
+        }
+
+        return [true, []];
+      }
+
+      function endec(fn, str) {
+        var res;
+        if (fn == 'encode') {
+          res = encode(str.replace(/\s/g, ''));
+        } else {
+          res = decode(str);
+        }
+        if (res == unsuccessful) {
+          return res;
+        }
+
+        var s = '';
+        if (fn == 'encode') {
+          for (rIdx in res[1]) {
+            s += res[1][rIdx] + '<br>\n';
+          }
+        } else {
+          s = '<table class="table">'
+          for (rIdx in res[1]) {
+            s += res[1][rIdx];
+          }
+          s += '</table>';
+        }
+        return s;
+      }
+
+      $(document).ready(function() {
+        function process() {
+          var fn = 'decode';
+          var input = $('textarea');
+          var result = endec(fn, input.val());
+
+          if (result != unsuccessful) {
+            input.css('background-color', 'white');
+            $('#result').html(result);
+          } else {
+            input.css('background-color', 'red');
+          }
+        }
+
+        $('textarea').keyup(function(e) {
+          process();
+        })
+        $('input:radio').change(function(e) {
+          process();
+        })
+      })
+    </script>
+  <body>
+</html>
